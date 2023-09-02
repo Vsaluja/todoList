@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDoList - Enhanced</title>
+    <style>
+        /* Declaring CSS variables */
+
+        :root {
+            --dark: #374151;
+            --darker: #1F2937;
+            --darkest: #111827; 
+            --grey: #6B7280;
+            --light: #EEE;
+            --pink: #EC4899;
+            --purple: #8B5CF6;
+        }
+
+        * {
+            margin: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--dark);
+            color: white;
+        }
+
+        header{
+            padding: 2rem 1rem;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header h1{
+            font-weight: bold;
+            color: var(--grey);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #new-task-form{
+            display: flex;
+        }
+
+        /* To reset the styling of input and button so that we can style ourselves */
+        input, button{
+            appearance: none;
+            border: none;
+            outline: none;
+            background: none;
+        }
+
+        #new-task-input{
+            /* Flex-grow, Flex-shrink, Flex-basis */
+            flex: 1 1 0%;
+            background-color: var(--darker);
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-right: 1rem;
+            /* What we type inside input changes to white because of color var light */
+            color: var(--light);
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        #new-task-input::placeholder{
+            color: var(--grey);
+        }
+
+        #new-task-submit{
+            color: var(--pink);
+            font-size: 1.25rem;
+            font-weight: bold;
+            background-image: linear-gradient(to right, var(--pink), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+            transition: 0.4s;
+        }
+
+        #new-task-submit:hover{
+            opacity: 0.8;
+        }
+        
+        main{
+            flex: 1 1 0%;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .task-list{
+            padding: 1rem;
+        }
+
+        .task-list h2{
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--grey);
+            margin-bottom: 1rem;
+        }
+
+        #tasks .task{
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--darkest);
+            padding: 0.7rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        #tasks .task .content{
+            flex: 1 1 0%;
+        }
+
+        #tasks .task .content .text{
+            color: var(--light);
+            font-size: 1.125rem;
+            transition: 0.4s;
+            display: inline;    
+            max-width: 500px;
+            font-weight: bold;   
+        }
+
+        #tasks .task .content .text:not(:read-only){
+            color: var(--pink);
+        }
+
+        #tasks .task .actions{
+            display: flex;
+        }
+
+        .task .actions button{
+            cursor: pointer;
+            margin: 0 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            transition: 0.4s;
+            text-transform: uppercase;
+        }
+
+        .task .actions button:hover{
+            opacity: 0.8;
+        }
+
+        .task .actions button:active{
+            opacity: 0.6;
+        }
+
+        .task .actions .edit{
+            background-image: linear-gradient(to right, var(--pink), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .task .actions .delete{
+            color: crimson;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <header>
+
+        <h1>Task List</h1>
+
+        <form id="new-task-form">
+
+            <input type="text" id="new-task-input" placeholder="What do you have planned ?">
+            <input type="submit" id="new-task-submit" value="Add task">
+
+
+        </form>
+    </header>
+
+    <main>
+
+        <section class="task-list">
+            <h2>Currently Planned</h2>
+            <div id="tasks">
+
+                <!-- Created this just to design css to see how it looks like -->
+                <!-- <div class="task">
+                    <div class="content">
+
+                        <input type="text" class="text" value="My Shiny task" readonly>
+
+                    </div>
+                    <div class="actions">
+                        <button class="edit">Edit</button>
+                        <button class="delete">Delete</button>
+                    </div>
+                </div> -->
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+    <script>
+
+        // this event listener will wait for the page to load and then execute
+        window.addEventListener('load', ()=>{
+            const form = document.querySelector('#new-task-form');
+            const input = document.querySelector('#new-task-input');
+            const submit = document.querySelector('#new-task-submit')
+            const list_el = document.querySelector('#tasks')
+
+            // It stops the page from reloading when you add task/submit
+
+            form.addEventListener('submit', (e)=>{
+                // preventdefault stops from refreshing the page
+                e.preventDefault(); 
+                
+                const task = input.value;
+
+                if(task==""){
+                    alert("Please enter a task before submitting")
+                    return;
+                }
+               
+                // Creating below based on the above commented out HTML
+
+                //creating the task div
+                const task_el = document.createElement('div');
+                task_el.classList.add('task');
+
+                //creating the content div
+                const content_el = document.createElement('div');
+                content_el.classList.add('content');
+                // Whatever text is stored in task will be written in content el
+                // content_el.innerText = task;
+
+                //creating the input element
+                const content_input_el = document.createElement('input');
+                content_input_el.classList.add('text');
+                content_input_el.type = 'text';
+                content_input_el.setAttribute('readonly', 'readonly');
+                content_input_el.value = task;
+
+                //putting the input element inside content div
+                content_el.appendChild(content_input_el);
+
+                //creating the div with class actions
+                const actions_el = document.createElement('div');
+                actions_el.classList.add('actions');
+
+                //creating the edit button with class edit
+                const edit_btn = document.createElement('button');
+                edit_btn.classList.add('edit');
+                edit_btn.innerText = "Edit";
+                
+                
+                // creating the delete button with class delete
+                const delete_btn = document.createElement('button');
+                delete_btn.classList.add('delete');
+                delete_btn.innerText = "Delete";
+
+                //putting the task div inside the tasks div
+                list_el.appendChild(task_el);
+
+                //putting the content div inside the task div
+                task_el.appendChild(content_el);
+           
+                //putting the actions div inside task div
+                task_el.appendChild(actions_el);
+
+                //putting the edit and delete button insside the actions div
+                actions_el.appendChild(edit_btn);
+                actions_el.appendChild(delete_btn);
+
+
+                // To make the input field empty after we click on add task
+                input.value = "";
+
+
+                // Editing the task 
+
+                edit_btn.addEventListener('click', ()=>{
+                    
+                    if(edit_btn.innerText.toLowerCase()=="edit"){
+                        content_input_el.removeAttribute("readonly");
+                        content_input_el.focus();
+                        edit_btn.innerText = "Save";
+                    }
+                    else{
+                        content_input_el.setAttribute("readonly", "readonly");
+                        edit_btn.innerText="Edit";
+                    }
+                   
+                })
+
+               // Deleting the task 
+                delete_btn.addEventListener('click', ()=>{
+                   let x =  confirm("Are you sure you want to delete ?")
+
+                   if(x){
+
+                       task_el.style.display = 'none';
+                    }
+        
+                })
+
+                        // Or
+                // delete_btn.addEventListener('click', ()=>{
+                //     list_el.removeChild(task_el);
+                // })
+
+            })
+
+           
+
+        })
+
+
+    </script>
+</body>
+
+</html>
